@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo:*)",
+      "Bash(npm start:*)",
+      "Bash(netstat -ano)",
+      "Bash(xargs -I{} taskkill /PID {} /F)",
+      "Bash(taskkill /PID 4992 /F && sleep 2 && npx expo start --port 8081)",
+      "WebSearch",
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(cd \"C:\\\\Users\\\\weinrea\\\\git\\\\outfit-tracker\" && eas build --platform all 2>&1)"
+    ]
+  }
+}
