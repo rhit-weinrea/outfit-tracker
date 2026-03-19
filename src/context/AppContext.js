@@ -11,6 +11,8 @@ import {
   updateClothingItem,
   addOutfit,
   deleteOutfit,
+  getSchedule,
+  saveSchedule,
 } from '../utils/storage';
 
 const AppContext = createContext(null);
@@ -19,18 +21,21 @@ export function AppProvider({ children }) {
   const [clothingItems, setClothingItems] = useState([]);
   const [outfits, setOutfits] = useState([]);
   const [preferences, setPreferences] = useState(null);
+  const [schedule, setSchedule] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
-      const [items, savedOutfits, prefs] = await Promise.all([
+      const [items, savedOutfits, prefs, sched] = await Promise.all([
         getClothingItems(),
         getOutfits(),
         getPreferences(),
+        getSchedule(),
       ]);
       setClothingItems(items);
       setOutfits(savedOutfits);
       setPreferences(prefs);
+      setSchedule(sched);
       setLoading(false);
     }
     loadData();
@@ -44,7 +49,6 @@ export function AppProvider({ children }) {
   const handleDeleteClothingItem = useCallback(async (id) => {
     const updated = await deleteClothingItem(id);
     setClothingItems(updated);
-    // Remove deleted item from any outfits
     const updatedOutfits = outfits.map((outfit) => ({
       ...outfit,
       itemIds: outfit.itemIds.filter((itemId) => itemId !== id),
@@ -73,12 +77,18 @@ export function AppProvider({ children }) {
     setPreferences(prefs);
   }, []);
 
+  const handleSaveSchedule = useCallback(async (sched) => {
+    await saveSchedule(sched);
+    setSchedule(sched);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
         clothingItems,
         outfits,
         preferences,
+        schedule,
         loading,
         addClothingItem: handleAddClothingItem,
         deleteClothingItem: handleDeleteClothingItem,
@@ -86,6 +96,7 @@ export function AppProvider({ children }) {
         addOutfit: handleAddOutfit,
         deleteOutfit: handleDeleteOutfit,
         savePreferences: handleSavePreferences,
+        saveSchedule: handleSaveSchedule,
       }}
     >
       {children}

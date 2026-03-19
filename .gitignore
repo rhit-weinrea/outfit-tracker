@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# API keys — copy src/config.example.js → src/config.js and add your key
+src/config.js
+
 # typescript
 *.tsbuildinfo
 

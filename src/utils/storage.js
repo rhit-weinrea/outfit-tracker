@@ -4,13 +4,32 @@ const KEYS = {
   CLOTHING_ITEMS: 'clothing_items',
   OUTFITS: 'outfits',
   PREFERENCES: 'user_preferences',
+  SCHEDULE: 'outfit_schedule',
+  ONBOARDING: 'onboarding_complete',
 };
 
-// Clothing Items
+// ── Migration ────────────────────────────────────────────────────────────────
+// Converts old inHamper:boolean items to status:'clean'|'worn'|'hamper'
+async function migrateClothingItems(items) {
+  let needsSave = false;
+  const migrated = items.map((item) => {
+    if (item.status === undefined) {
+      needsSave = true;
+      const { inHamper, ...rest } = item;
+      return { ...rest, status: inHamper ? 'hamper' : 'clean' };
+    }
+    return item;
+  });
+  if (needsSave) await saveClothingItems(migrated);
+  return migrated;
+}
+
+// ── Clothing Items ───────────────────────────────────────────────────────────
 export async function getClothingItems() {
   try {
     const data = await AsyncStorage.getItem(KEYS.CLOTHING_ITEMS);
-    return data ? JSON.parse(data) : [];
+    const items = data ? JSON.parse(data) : [];
+    return migrateClothingItems(items);
   } catch {
     return [];
   }
@@ -22,7 +41,7 @@ export async function saveClothingItems(items) {
 
 export async function addClothingItem(item) {
   const items = await getClothingItems();
-  const updated = [...items, item];
+  const updated = [...items, { status: 'clean', ...item }];
   await saveClothingItems(updated);
   return updated;
 }
@@ -41,7 +60,7 @@ export async function updateClothingItem(updatedItem) {
   return updated;
 }
 
-// Outfits
+// ── Outfits ──────────────────────────────────────────────────────────────────
 export async function getOutfits() {
   try {
     const data = await AsyncStorage.getItem(KEYS.OUTFITS);
@@ -69,32 +88,55 @@ export async function deleteOutfit(id) {
   return updated;
 }
 
-// Preferences
+// ── Schedule ─────────────────────────────────────────────────────────────────
+// Format: { 'YYYY-MM-DD': outfitId | null }
+export async function getSchedule() {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.SCHEDULE);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function saveSchedule(schedule) {
+  await AsyncStorage.setItem(KEYS.SCHEDULE, JSON.stringify(schedule));
+}
+
+// ── Preferences ──────────────────────────────────────────────────────────────
+const DEFAULT_PREFS = {
+  style: [],
+  customStyles: [],
+  occasions: [],
+  colorPreferences: [],
+  avoidColors: [],
+  weatherLocation: '',
+  temperatureUnit: 'F',
+};
+
 export async function getPreferences() {
   try {
     const data = await AsyncStorage.getItem(KEYS.PREFERENCES);
-    return data
-      ? JSON.parse(data)
-      : {
-          style: [],
-          occasions: [],
-          colorPreferences: [],
-          avoidColors: [],
-          weatherLocation: '',
-          temperatureUnit: 'F',
-        };
+    return data ? { ...DEFAULT_PREFS, ...JSON.parse(data) } : { ...DEFAULT_PREFS };
   } catch {
-    return {
-      style: [],
-      occasions: [],
-      colorPreferences: [],
-      avoidColors: [],
-      weatherLocation: '',
-      temperatureUnit: 'F',
-    };
+    return { ...DEFAULT_PREFS };
   }
 }
 
 export async function savePreferences(prefs) {
   await AsyncStorage.setItem(KEYS.PREFERENCES, JSON.stringify(prefs));
+}
+
+// ── Onboarding ───────────────────────────────────────────────────────────────
+export async function isOnboardingComplete() {
+  try {
+    const val = await AsyncStorage.getItem(KEYS.ONBOARDING);
+    return val === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export async function setOnboardingComplete() {
+  await AsyncStorage.setItem(KEYS.ONBOARDING, 'true');
 }

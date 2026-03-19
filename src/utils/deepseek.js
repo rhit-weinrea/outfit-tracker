@@ -1,21 +1,11 @@
-// DeepSeek API integration for outfit suggestions
+import { DEEPSEEK_API_KEY } from '../config';
+
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
-/**
- * Get outfit suggestions from DeepSeek AI.
- *
- * @param {Object} params
- * @param {Array}  params.clothingItems  - Array of clothing items in the user's closet
- * @param {Object} params.preferences   - User style preferences
- * @param {Object|null} params.weather  - Current weather data (may be null)
- * @param {string} params.vibe          - Desired vibe / mood (e.g. "casual", "professional")
- * @param {string} params.customRequest - Free-text custom request from the user
- * @param {string} params.apiKey        - DeepSeek API key
- * @returns {Promise<string>} AI-generated outfit suggestion text
- */
-export async function getOutfitSuggestion({ clothingItems, preferences, weather, vibe, customRequest, apiKey }) {
+export async function getOutfitSuggestion({ clothingItems, preferences, weather, vibe, customRequest }) {
+  const apiKey = DEEPSEEK_API_KEY;
   if (!apiKey) {
-    throw new Error('DeepSeek API key is required. Please add it in Settings.');
+    throw new Error('No API key configured. Please add your DeepSeek API key to src/config.js.');
   }
 
   const closetSummary = buildClosetSummary(clothingItems);

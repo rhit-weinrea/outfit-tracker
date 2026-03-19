@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "outfit-tracker",
-    "slug": "outfit-tracker",
+    "name": "Outfit Genie",
+    "slug": "outfit-genie",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,9 +12,14 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.weinrea.outfitgenie",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.weinrea.outfitgenie",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -24,6 +29,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-asset"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "161a4b51-b457-43a3-9ca2-212fa7c836a7"
+      }
     }
   }
 }
